@@ -1,0 +1,4 @@
+local resume = fs.exists('/excavating')
+if resume ~= false then
+    shell.run('bexcavate')
+end
