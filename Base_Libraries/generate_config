@@ -1,0 +1,31 @@
+if ini == nil then
+    os.loadAPI('ini')
+end
+local sides = {'top', 'bottom', 'left', 'right','back'}
+local config = {}
+
+function bind_type(side)
+    local types = {'monitor', 'drive', 'BigReactors-Reactor', 'chat_box', 'modem', 'colorful_lamp', 'radar'}
+    local type = peripheral.getType(side)
+    local final_type = false
+    for j = 1, #types do
+        if type == types[j] then
+            if type == 'BigReactors-Reactor' then
+                  type = 'reactor'
+            end
+            final_type = type
+        end
+    end
+    return final_type
+end
+
+for i = 1, #sides do
+    if peripheral.isPresent(sides[i]) == true then
+        type = bind_type(sides[i])
+        if type ~= false then
+            config[type] = sides[i]
+        end
+    end
+end
+            
+ini.save("config.ini", config)

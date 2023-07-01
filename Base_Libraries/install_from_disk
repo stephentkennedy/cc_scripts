@@ -1,0 +1,18 @@
+local ini_installed = fs.exists('/ini')
+
+if ini_installed == false then
+    fs.copy('/disk/ini', '/ini')
+    fs.copy('/disk/generate_config', '/generate_config')
+end    
+
+if ini == nil then
+  os.loadAPI('ini')
+end
+
+shell.run('generate_config')
+
+config = ini.parse('/config.ini')
+
+if config.reactor ~= nil then
+    fs.copy('/disk/reactor', '/startup')
+end

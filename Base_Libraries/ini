@@ -1,0 +1,54 @@
+--INI Parser
+function split(s, delimiter)
+    local result = {}
+    if s == nil then
+      return
+    end
+    if delimiter == nil then
+      return
+    end
+    for match in (s..delimiter):gmatch("(.-)"..delimiter) do
+        table.insert(result, match)
+    end
+    return result
+end
+
+function trim(s)
+    return (s:gsub("^%s*(.-)%s*$", "%1"));
+end
+
+--Split our string into individual lines, and then split those into key value pairs
+function toAssoc(s)
+    local ls = split(s, '\n')
+    local result = {}
+    for i = 1, #ls do
+        if trim(ls[i]) ~= '' then
+            line = split(ls[i], '=')
+            result[line[1]] = line[2];
+        end
+    end
+    return result
+end
+
+--Read file into ini array/table
+function parse(filename)
+    local h = fs.open(filename, 'r')
+    local contents = h.readAll()
+    h.close()
+    return toAssoc(contents)
+end
+
+--Save ini array/table to file
+function save (filename, array)
+    local w = ''
+    for i,v in pairs(array) do
+        if w~= '' then
+            w = w..'\n'..i.."="..v
+        else
+            w = i.."="..v
+        end
+    end
+    local h = fs.open(filename, 'w')
+    h.write(w)
+    return h.close()
+end

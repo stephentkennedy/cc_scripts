@@ -1,0 +1,89 @@
+if ini == nul then
+    os.loadAPI('ini')
+end
+
+settings = ini.parse('/config.ini')
+
+monitor = false
+reactor = false
+width = false
+height = false
+tick = 10
+total = 10000000
+min = total / 10
+max = min * 9
+
+if settings.monitor ~= null then
+    monitor = peripheral.wrap(settings.monitor)
+    width, height = monitor.getSize()
+    tick = width - 2
+    if tick < 1 then
+        tick = 1
+    end
+end
+
+chunk = math.floor(total / tick)
+
+if settings.reactor ~= null then
+    reactor = peripheral.wrap(settings.reactor)
+else
+    os.exit()
+end
+
+function update ()
+    --Monitor Cleanup
+    if monitor ~= false then
+      monitor.clear()
+      monitor.setCursorPos(1, 1)
+    end
+    term.clear()
+    term.setCursorPos(1, 1)
+    
+    --Establish Reactor Status
+    local on = reactor.getActive()
+    if on == true then
+        on = "Active"
+    else
+        on = "Inactive"
+    end
+    local energy = reactor.getEnergyStored()
+    if energy > max then
+      reactor.setActive(false)
+      on = "Inactive"
+    elseif energy < min then
+      reactor.setActive(true)
+      on = "Active"
+    end
+    
+    local energyPro =  reactor.getEnergyProducedLastTick()
+    
+    --Use the above to create our output
+    local line1 = 'Reactor Status: ' .. on
+    local line2 = 'Produced Last Tick: ' .. energyPro
+    local line3 = '['
+    for i=1, tick do
+        if energy >= (chunk * i) then
+          line3 = line3 .. '='
+        else
+          line3 = line3 .. ' '
+        end
+    end
+    line3 = line3 .. ']'
+    if monitor ~= false then
+        monitor.write(line1)
+        monitor.setCursorPos(1,2)
+        monitor.write(line2)
+        monitor.setCursorPos(1,3)
+        monitor.write(line3)
+    end
+    term.write(line1)
+    term.setCursorPos(1, 2)
+    term.write(line2)
+    term.setCursorPos(1,3)
+    term.write(line3)
+end
+
+while true do
+    update()
+    sleep(5)
+end

@@ -1,0 +1,39 @@
+local component = require("component")
+local reactor = component.br_reactor
+
+local term = require("term")
+local event = require("event")
+local math = require("math")
+
+local total = 10000000
+local max = total - 10000
+local min = 10000
+
+function update ()
+  local running = reactor.getActive()
+  local state = ""
+  if running == true then
+    state = "Active" 
+  else
+    state = "Inactive"
+  end
+
+  local energy = reactor.getEnergyStored()
+  if energy > max then
+    reactor.setActive(false)
+    state = "Inactive"
+  elseif energy < min then
+    reactor.setActive(true)
+    state = "Active"
+  end
+  term.clear()
+  local energyPro = reactor.getEnergyProducedLastTick()
+
+  print("Reactor Status: " .. state)
+  print("Energy: " .. energy)
+  print("Produced Last Tick: " .. energyPro)
+end
+
+update()
+
+event.timer(5, update, math.huge)
